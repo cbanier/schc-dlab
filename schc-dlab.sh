@@ -81,14 +81,45 @@ xhost_for_linux() {
 
 docker_run_for_mac() {
   local IP=$1
-  docker run -itd --name schc-dlab \
+  # Detect ARM chip for M1/M2/M3 Macs
+  local ARCH=$(uname -m)
+  local PLATFORM=""
+  if [[ "$ARCH" == "arm64" ]]; then
+    PLATFORM="--platform=linux/amd64"
+    msg "Detected Apple Silicon Mac. Using emulation."
+  fi
+  
+  # Install and start XQuartz if needed
+  if ! pgrep -x "Xquartz" > /dev/null; then
+    msg "XQuartz is not running."
+    if ! command -v xquartz &> /dev/null; then
+      if command -v brew &> /dev/null; then
+        msg "Installing XQuartz via Homebrew..."
+        brew install --cask xquartz
+      else
+        msg "Please install XQuartz from https://www.xquartz.org/"
+        exit 1
+      fi
+    fi
+    msg "Starting XQuartz..."
+    open -a XQuartz
+    sleep 3  # Wait for startup
+  fi
+  
+  docker run -itd --name schc-dlab ${PLATFORM} \
     -e DISPLAY="${IP}:0" \
     -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
 }
 
 xhost_for_mac() {
   local IP=$1
-  /opt/X11/bin/xhost "$IP" # enable xhost access to the display address
+  if command -v /opt/X11/bin/xhost &> /dev/null; then
+    /opt/X11/bin/xhost + $IP
+  elif command -v xhost &> /dev/null; then
+    xhost + $IP
+  else
+    msg "xhost not found. Please check your XQuartz installation."
+  fi
 }
 
 parse_params "$@"
@@ -107,7 +138,7 @@ cd ${script_dir}
 
 
 case ${cmd} in
-# commands='install start core wireshark bash stop remove'
+# commands='install start core-daemon core-gui wireshark bash stop remove'
 
   (install)
     # first we must build EMANE python bindings
@@ -125,7 +156,8 @@ case ${cmd} in
     msg "Found ${IMPLEMS_DIR}."
     # create container
     if $running_on_mac; then
-      IP=$(/usr/sbin/ipconfig getifaddr en0)
+      IP=$(/usr/sbin/ipconfig getifaddr en0 || echo "127.0.0.1")
+      msg "Using display IP: $IP"
       docker_run_for_mac $IP
       xhost_for_mac $IP
     else
@@ -138,8 +170,9 @@ case ${cmd} in
   (start)
     docker start schc-dlab
     if $running_on_mac; then
-      IP=$(/usr/sbin/ipconfig getifaddr en0)
-      xhost_for_mac $IP # echo "Run bash and set DISPLAY=$IP"
+      IP=$(/usr/sbin/ipconfig getifaddr en0 || echo "127.0.0.1")
+      msg "Using display IP: $IP"
+      xhost_for_mac $IP
     else
       xhost_for_linux
     fi
@@ -179,4 +212,3 @@ case ${cmd} in
     ;;
 
 esac
-

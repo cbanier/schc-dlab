@@ -1,17 +1,49 @@
 XTerm.termName: xterm-256color
 XTerm*faceName: DejaVu Sans Mono
-XTerm*faceSize: 11
-
+XTerm*faceSize: 12
 XTerm*selectToClipboard: true
 XTerm*highlightSelection: true
 XTerm*trimSelection: true
-
 XTerm*vt100.translations: #override \n\
-  Ctrl <Key>-: smaller-vt-font() \n\
-  Ctrl <Key>+: larger-vt-font() \n\
-  Ctrl <Key>0: set-vt-font(d) \n\
-  Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
-  Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+    Ctrl <Key>-: smaller-vt-font() \n\
+    Ctrl <Key>+: larger-vt-font() \n\
+    Ctrl <Key>0: set-vt-font(d) \n\
+    Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
 
-XTerm*background: black
-XTerm*foreground: white
+! General colors
+XTerm*background: #282a36
+XTerm*foreground: #f8f8f2
+XTerm*cursorColor: #f8f8f2
+
+! Black + Dark Gray
+XTerm*color0: #21222c
+XTerm*color8: #6272a4
+
+! Red + Light Red
+XTerm*color1: #ff5555
+XTerm*color9: #ff6e6e
+
+! Green + Light Green
+XTerm*color2: #50fa7b
+XTerm*color10: #69ff94
+
+! Orange + Yellow
+XTerm*color3: #f1fa8c
+XTerm*color11: #ffffa5
+
+! Blue + Light Blue
+XTerm*color4: #bd93f9
+XTerm*color12: #d6acff
+
+! Magenta + Light Magenta
+XTerm*color5: #ff79c6
+XTerm*color13: #ff92df
+
+! Cyan + Light Cyan
+XTerm*color6: #8be9fd
+XTerm*color14: #a4ffff
+
+! Light Gray + White
+XTerm*color7: #f8f8f2
+XTerm*color15: #ffffff
